@@ -1,6 +1,6 @@
 const mongoose = require ('mongoose');
-const ManagerModel = mongoose.model('Manager')
-const AuthModel = mongoose.model('Auth')
+const ManagerModel = mongoose.model('Manager');
+const AuthModel = mongoose.model('Auth');
 
 module.exports = class AuthController {
   static async has (ctx) {
