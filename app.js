@@ -1,36 +1,24 @@
-const Koa = require('koa')
-const app = new Koa()
-const convert = require('koa-convert')
-const onerror = require('koa-onerror')
-const bodyParser = require('koa-bodyparser')()
-const logger = require('koa-logger')
-const session = require('koa-session')
-const path = require('path')
-require('./rest/models/db')
+const Koa = require('koa');
+const app = new Koa();
+const convert = require('koa-convert');
+const onerror = require('koa-onerror');
+const bodyParser = require('koa-bodyparser')();
+const logger = require('koa-logger');
+const path = require('path');
+require('./rest/models/db');
 // const koaBody = require('koa-body')
 // const co = require('co')
 // const json = require('koa-json')
 
 const backendRouter = require('./rest/routers/backend');
 
-// cookies
-app.keys = ['moge:secret']
-const CONFIG = {
-  key: 'moge',
-  maxAge: 604800000,  // 7天
-  overwrite: true,
-  signed: true,
-  httpOnly: false
-}
-
 app.use(convert(logger()))
-   .use(convert(session(CONFIG, app)))
-   .use(require('koa-static')(path.resolve(__dirname) + '/public'))
+   .use(require('koa-static')(path.resolve(__dirname) + '/public'));
 
-onerror(app)
+onerror(app);
 
 // 使用ctx.body解析中间件
-app.use(bodyParser)
+app.use(bodyParser);
 
 // app.use(koaBody({
 //   formLimit: 1048576,  // 最大1M
@@ -45,22 +33,22 @@ app.use(bodyParser)
 // }))
 
 app.use(async (ctx, next) => {
-  const start = new Date()
-  await next()
-  const ms = new Date() - start
-  console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
-})
+  const start = new Date();
+  await next();
+  const ms = new Date() - start;
+  console.log(`${ctx.method} ${ctx.url} - ${ms}ms`);
+});
 
 // router
-app.use(require('./rest/middlewares/response'))
-app.use(require('./rest/middlewares/filter'))
-app.use(backendRouter.routes()).use(backendRouter.allowedMethods())
+app.use(require('./rest/middlewares/response'));
+app.use(require('./rest/middlewares/filter'));
+app.use(backendRouter.routes()).use(backendRouter.allowedMethods());
 
 // response
 app.on('error', function (err, ctx) {
-  console.log(err)
-  logger.error('server error', err, ctx)
-  ctx.render('error', { message: ' 服务器错误!', error: err })
-})
+  console.log(err);
+  logger.error('server error', err, ctx);
+  ctx.render('error', { message: ' 服务器错误!', error: err });
+});
 
-module.exports = app
+module.exports = app;

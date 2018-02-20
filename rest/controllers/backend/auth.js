@@ -4,14 +4,17 @@ const AuthModel = mongoose.model('Auth');
 
 module.exports = class AuthController {
   static async has (ctx) {
-    const manager = await ManagerModel.findById(ctx.cookies.get('userId')).populate('auth')
-    if (!manager) {
+    const token = ctx.headers.authorization;
+    const manager = await ManagerModel.findOne({ token }).populate('auth');
+
+    if (!manager || !token) {
       ctx.success({
         code: 400,
         message: '获取权限错误'
       });
-      return
+      return;
     }
+
     ctx.success({
       data: {
         auth: manager.auth.map(({ id, parentId, name }) => {
@@ -19,14 +22,14 @@ module.exports = class AuthController {
             id,
             parentId,
             name
-          }
+          };
         })
       }
     });
   }
 
   static async list (ctx) {
-    const auth = await AuthModel.find().then(auths => auths.filter(auth => auth.id !== 60000))
+    const auth = await AuthModel.find().then(auths => auths.filter(auth => auth.id !== 60000));
     ctx.success({
       data: {
         auth

@@ -7,9 +7,9 @@ module.exports = class CostumerController {
       pageNo = 1,
       pageSize = 10,
       searchType = 0,
+      sort = 0,
       key = '',
-      from = '',
-      sort = ''
+      from = ''
     } = ctx.query;
     const params = {};
 
@@ -22,12 +22,12 @@ module.exports = class CostumerController {
     if (key) {
       // search key regexp
       key = new RegExp(key);
-      params[['name', 'phone', 'wx'][searchType]] = key
+      params[['name', 'phone', 'wx'][searchType]] = key;
     }
 
     // trim
     from = from.trim();
-    if (from) { params.from = from }
+    if (from) { params.from = from; }
 
     // 1 new top . 2 old top
     sort = parseInt(sort) === 2 ? 'createTime' : '-createTime';
@@ -39,22 +39,22 @@ module.exports = class CostumerController {
     pageSize = parseInt(pageSize) || 10;
 
     const recordTotal = await CustomerModel.find(params).count();
-    const customers = await CustomerModel.find(params).sort(sort).skip((pageNo - 1) * pageSize).limit(pageSize)
+    const customers = await CustomerModel.find(params).sort(sort).skip((pageNo - 1) * pageSize).limit(pageSize);
 
     let data = {
       recordTotal,
       pageSize,
       pageNo,
       customers
-    }
-    ctx.success({ data })
+    };
+    ctx.success({ data });
   }
 
   static detail (ctx) {
     // let id = parseInt(ctx.params.id)
     ctx.success({
       data: {}
-    })
+    });
   }
 
   static add (ctx) {
@@ -63,7 +63,7 @@ module.exports = class CostumerController {
       data: {
         id: 123
       }
-    })
+    });
   }
 
   static async update (ctx) {
@@ -71,7 +71,7 @@ module.exports = class CostumerController {
     ctx.success({
       message: '修改成功',
       data: {}
-    })
+    });
   }
 
   static async del (ctx) {
@@ -79,6 +79,6 @@ module.exports = class CostumerController {
     ctx.success({
       message: '删除成功',
       data: {}
-    })
+    });
   }
-}
+};

@@ -8,7 +8,7 @@ class UploadController {
   static async alioss (ctx) {
     const { fields, files } = ctx.request.body;
     if (!files || !files.file) {
-      return ctx.error({ msg: '上传失败!' })
+      return ctx.error({ msg: '上传失败!' });
     }
 
     const { id } = fields;
@@ -17,7 +17,7 @@ class UploadController {
       return ctx.error({ msg: '您还没有登录哦!' });
     }
 
-    const isexit = await fs.existsSync(files.file.path)
+    const isexit = await fs.existsSync(files.file.path);
     if (!isexit) {
       return ctx.error({ msg: '上传文件时发生错误!' });
     }
@@ -42,4 +42,4 @@ class UploadController {
   }
 }
 
-module.exports = UploadController
+module.exports = UploadController;

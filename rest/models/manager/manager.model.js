@@ -16,6 +16,6 @@ ManagerSchema.statics = {
   canManage (id, moduleId) {
     return this.findById(id).then(manager => manager && manager.auth.includes(moduleId));
   }
-}
+};
 
 module.exports = mongoose.model('Manager', ManagerSchema);

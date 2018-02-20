@@ -1,59 +1,18 @@
-const tokenMaker = require('jsonwebtoken');
 const mongoose = require ('mongoose');
-const ManagerModel = mongoose.model('Manager');
-const moment = require('moment');
+const PhotoModel = mongoose.model('Photo');
 
-module.exports = class ManagerController {
-  static async login (ctx) {
-    const { mobile, password } = ctx.request.body
-
-    if (!mobile) {
-      return ctx.error({
-        message: '请输入用户名!'
-      })
-    }
-
-    if (!password) {
-      return ctx.error({
-        message: '请输入密码!'
-      })
-    }
-
-    const result = await ManagerModel.findOne({ mobile, password });
-    if (!result) {
-      return ctx.success({
-        code: 400,
-        message: '用户名或密码错误!'
-      })
-    }
-
-    const token = tokenMaker.sign({msg: 'manager login token'}, ctx.header['user-agent'])
-
-    result.token = token
-    result.ip = ctx.req.headers['x-forwarded-for'] || ctx.req.connection.remoteAddress
-    result.lastLoginTime = moment().format('YYYY-MM-DD HH:mm:ss')
-    result.save()
-
-    ctx.cookies.set('userId', result.id.toString());
-
-    ctx.success({
-      message: '登陆成功',
-      data: {
-        authorization: token,
-        id: result.id,
-        name: result.name
-      }
-    })
-  }
-
+module.exports = class PhotoController {
   static async list (ctx) {
     let {
       pageNo = 1,
       pageSize = 10,
-      sort = 0
+      sort = 0,
+      key = '',
+      tid = ''
     } = ctx.query;
+    const params = {};
 
-    sort = ['createTime', '-createTime', 'lastLoginTime', '-lastLoginTime'][parseInt(sort)];
+    sort = ['createTime', '-createTime', 'customerCount', '-customerCount'][parseInt(sort)];
 
     // pageNo
     pageNo = parseInt(pageNo) || 1;
@@ -61,75 +20,93 @@ module.exports = class ManagerController {
     // pageSize
     pageSize = parseInt(pageSize) || 10;
 
-    const recordTotal = await ManagerModel.find().count();
-    const managers = await ManagerModel.find().sort(sort).skip((pageNo - 1) * pageSize).limit(pageSize)
+    // key
+    params.name = new RegExp(key.trim());
+
+    params.type = tid.trim();
+
+    //type id
+    tid = tid.trim();
+
+    const recordTotal = await PhotoModel.find().count();
+    const photos = await PhotoModel.find().sort(sort).skip((pageNo - 1) * pageSize).limit(pageSize).populate('type', 'label -_id');
 
     let data = {
       recordTotal,
       pageSize,
       pageNo,
-      managers
-    }
-    ctx.success({ data })
+      photos
+    };
+    ctx.success({ data });
   }
 
   static async detail (ctx) {
-    let id = ctx.params.id
-    const manager = await ManagerModel.findById(id).populate('auth')
+    let id = ctx.params.id;
+    const photo = await PhotoModel.findById(id).populate('pictures');
 
-    if (manager) {
+    if (photo) {
       ctx.success({
         data: {
-          manager
+          photo
         }
-      })
+      });
     } else {
       ctx.success({
         code: 400,
         message: '没有对应的管理员'
-      })
+      });
     }
   }
 
   static async add (ctx) {
-    let { mobile, password, name, auth } = ctx.request.body
+    let { name, intro, pictures, type } = ctx.request.body;
 
-    const hasSame = await ManagerModel.find({ mobile });
+    const hasSame = await PhotoModel.find({ name });
     if (hasSame.length) {
       ctx.success({
         code: 400,
-        message: '已存在该手机号',
-      })
+        message: '已经存在同样名称的相片',
+      });
       return;
     }
 
-    const add = await ManagerModel.create({ mobile, password, name, auth })
+    const add = await PhotoModel.create({ name, intro, pictures, type });
 
     ctx.success({
       message: '添加成功',
       data: {
         id: add.id
       }
-    })
+    });
   }
 
   static async update (ctx) {
-    let id = ctx.params.id
-    let { name, password, auth  } = ctx.request.body
+    let id = ctx.params.id;
+    let { name, intro, pictures, type  } = ctx.request.body;
 
-    const result = await ManagerModel.update({_id: id}, { name, password, auth })
+    const hasSame = await PhotoModel.find({ name });
+
+    if (hasSame.length && hasSame[0].id !== id) {
+      ctx.success({
+        code: 400,
+        message: '已经存在同样名称的相片',
+      });
+      return;
+    }
+
+    const result = await PhotoModel.update({_id: id}, { name, intro, pictures, type });
     ctx.success({
       code: result.ok ? 200 : 400,
       message: result.ok ? '修改成功' : '修改失败',
-    })
+    });
   }
 
   static async del (ctx) {
-    let id = ctx.params.id
-    const del = await ManagerModel.findByIdAndRemove(id).exec()
+    let id = ctx.params.id;
+    const del = await PhotoModel.findByIdAndRemove(id).exec();
     ctx.success({
       code: del ? 200 : 400,
       message: del ? '删除成功' : '删除失败',
-    })
+    });
   }
-}
+};
