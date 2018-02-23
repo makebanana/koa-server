@@ -23,13 +23,30 @@ module.exports = class PhotoController {
     // key
     params.name = new RegExp(key.trim());
 
-    params.type = tid.trim();
+    if (tid.trim()) {
+      params.type = tid.trim();
+    }
 
     //type id
     tid = tid.trim();
 
-    const recordTotal = await PhotoModel.find().count();
-    const photos = await PhotoModel.find().sort(sort).skip((pageNo - 1) * pageSize).limit(pageSize).populate('type', 'label -_id');
+    const recordTotal = await PhotoModel.find(params).count();
+    const photos = await PhotoModel.find(params)
+    .sort(sort)
+    .skip((pageNo - 1) * pageSize)
+    .limit(pageSize)
+    .populate('type', 'label -_id')
+    .then(list => list.map(({ name, intro, type, customerCount, cover, pictures, createTime }) => {
+      return {
+        name,
+        intro,
+        customerCount,
+        cover,
+        pictures,
+        createTime,
+        type : type[1].label || ''
+      };
+    }));
 
     let data = {
       recordTotal,
