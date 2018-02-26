@@ -5,9 +5,11 @@ const onerror = require('koa-onerror');
 const bodyParser = require('koa-bodyparser')();
 const logger = require('koa-logger');
 const path = require('path');
+const koaBody = require('koa-body');
+
 require('./rest/models/db');
-// const koaBody = require('koa-body')
-// const co = require('co')
+
+
 // const json = require('koa-json')
 
 const backendRouter = require('./rest/routers/backend');
@@ -20,17 +22,13 @@ onerror(app);
 // 使用ctx.body解析中间件
 app.use(bodyParser);
 
-// app.use(koaBody({
-//   formLimit: 1048576,  // 最大1M
-//   textLimit: 1048576,
-//   formidable:{
-//     keepExtensions: true, // 带拓展名上传，否则上传的会是二进制文件而不是图片文件
-//     onFileBegin(name,file){
-//       file.path = __dirname+'/public/images/'+file.name // 重命名上传文件
-//     },
-//     uploadDir: __dirname+'/public/images'},  // 输出到images文件夹
-//   multipart:true,
-// }))
+app.use(koaBody({
+  formLimit: 10485760,  // 最大1M
+  formidable:{
+    keepExtensions: true, // 带拓展名上传，否则上传的会是二进制文件而不是图片文件
+  },
+  multipart:true,
+}));
 
 app.use(async (ctx, next) => {
   const start = new Date();
