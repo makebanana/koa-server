@@ -36,19 +36,19 @@ module.exports = class PhotoController {
     .skip((pageNo - 1) * pageSize)
     .limit(pageSize)
     .populate('type', 'label -_id')
-    .then(list => list.map(({ name, intro, type, customerCount, cover, pictures, createTime }) => {
+    .then(list => list.map(({ name, intro, type, customerCount, pictures, createTime }) => {
       return {
         name,
         intro,
         customerCount,
-        cover,
         pictures,
         createTime,
+        cover: pictures[0] ? pictures[0].path : '',
         type : type[1].label || ''
       };
     }));
 
-    let data = {
+    const data = {
       recordTotal,
       pageSize,
       pageNo,
@@ -58,8 +58,8 @@ module.exports = class PhotoController {
   }
 
   static async detail (ctx) {
-    let id = ctx.params.id;
-    const photo = await PhotoModel.findById(id).populate('pictures');
+    const id = ctx.params.id;
+    const photo = await PhotoModel.findById(id).populate('pictures type');
 
     if (photo) {
       ctx.success({
@@ -70,13 +70,13 @@ module.exports = class PhotoController {
     } else {
       ctx.success({
         code: 400,
-        message: '没有对应的管理员'
+        message: '该相片不存在'
       });
     }
   }
 
   static async add (ctx) {
-    let { name, intro, pictures, type } = ctx.request.body;
+    const { name, intro, pictures, type } = ctx.request.body;
 
     const hasSame = await PhotoModel.find({ name });
     if (hasSame.length) {
@@ -98,8 +98,8 @@ module.exports = class PhotoController {
   }
 
   static async update (ctx) {
-    let id = ctx.params.id;
-    let { name, intro, pictures, type  } = ctx.request.body;
+    const id = ctx.params.id;
+    const { name, intro, pictures, type } = ctx.request.body;
 
     const hasSame = await PhotoModel.find({ name });
 
@@ -119,7 +119,7 @@ module.exports = class PhotoController {
   }
 
   static async del (ctx) {
-    let id = ctx.params.id;
+    const id = ctx.params.id;
     const del = await PhotoModel.findByIdAndRemove(id).exec();
     ctx.success({
       code: del ? 200 : 400,

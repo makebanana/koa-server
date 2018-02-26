@@ -6,7 +6,6 @@ const PhotoSchema = new Schema({
   intro: { type: String, default: null },
   type: [{ type: Schema.Types.ObjectId, ref: 'PhotoType' }],
   customerCount: { type:  Number, default: 0 },
-  cover: { type: Schema.Types.ObjectId, ref: 'Image' },
   pictures: [{ type: Schema.Types.ObjectId, ref: 'Image' }],
   createTime: { type: Date, default: Date.now }
 });

@@ -39,9 +39,13 @@ module.exports = class CostumerController {
     pageSize = parseInt(pageSize) || 10;
 
     const recordTotal = await CustomerModel.find(params).count();
-    const customers = await CustomerModel.find(params).sort(sort).skip((pageNo - 1) * pageSize).limit(pageSize);
+    const customers = await CustomerModel.find(params)
+    .sort(sort)
+    .skip((pageNo - 1) * pageSize)
+    .limit(pageSize)
+    .populate('produce', 'name -_id');
 
-    let data = {
+    const data = {
       recordTotal,
       pageSize,
       pageNo,
@@ -50,35 +54,55 @@ module.exports = class CostumerController {
     ctx.success({ data });
   }
 
-  static detail (ctx) {
-    // let id = parseInt(ctx.params.id)
-    ctx.success({
-      data: {}
-    });
+  static async detail (ctx) {
+    const id = ctx.params.id;
+    const customer = await CustomerModel.findById(id).populate('produce');
+
+    if (customer) {
+      ctx.success({
+        data: {
+          customer
+        }
+      });
+    } else {
+      ctx.success({
+        code: 400,
+        message: '该用户不存在'
+      });
+    }
   }
 
-  static add (ctx) {
+  static async add (ctx) {
+    let { name, mobile, wechat, sex, birth, from, produce } = ctx.request.body;
+
+    const add = await CustomerModel.create({ name, mobile, wechat, sex, birth, from, produce });
+
     ctx.success({
-      message: '新增成功',
+      message: '添加成功',
       data: {
-        id: 123
+        id: add.id
       }
     });
   }
 
   static async update (ctx) {
-    // let { name, password } = ctx.request.body
+    const id = ctx.params.id;
+    const { name, mobile, wechat, sex, birth, from, produce } = ctx.request.body;
+
+
+    const result = await CustomerModel.update({_id: id}, { name, mobile, wechat, sex, birth, from, produce});
     ctx.success({
-      message: '修改成功',
-      data: {}
+      code: result.ok ? 200 : 400,
+      message: result.ok ? '修改成功' : '修改失败',
     });
   }
 
   static async del (ctx) {
-    // let id = ctx.request.body.id
+    const id = ctx.params.id;
+    const del = await CustomerModel.findByIdAndRemove(id).exec();
     ctx.success({
-      message: '删除成功',
-      data: {}
+      code: del ? 200 : 400,
+      message: del ? '删除成功' : '删除失败',
     });
   }
 };
