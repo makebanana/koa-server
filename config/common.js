@@ -16,10 +16,11 @@ module.exports = {
     port: '9999',
     alioss: { // 阿里云oss sdk配置  (仅供参考)
       region: 'oss-cn-hangzhou', // 示例：'oss-cn-hangzhou'
-      accessKeyId: 'LTAINE1S7Swyh4wI', // 示例：'SVDFBGBFBFDNGSBRSVFDV'
-      accessKeySecret: '4YbawEW7Ov7B9LgRm7RhFZ7kQATbjn', // 示例：'WFEWVBGBFBFDNGSBRSVFFDBDV'
+      accessKeyId: 'LTAIsg8T09ZLEax', // 示例：'SVDFBGBFBFDNGSBRSVFDM'
+      accessKeySecret: 'bHkdaXAFyogNmUYgyi8BF7eN6zIIJ', // 示例：'wFEWVBG2bFBnNGwe6RSsFfDbDr'
       bucket: 'moge-test',
-      folder: 'image/' // 上传到空间的images文件夹下，可自定义，文件夹需提前创建
+      folder: 'image/', // 上传到空间的images文件夹下，可自定义，文件夹需提前创建
+      imageHost: 'moge-test.oss-cn-hangzhou.aliyuncs.com'
     }
   },
 

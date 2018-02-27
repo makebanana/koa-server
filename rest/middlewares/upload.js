@@ -1,7 +1,11 @@
 const fs = require('fs');
+const path = require('path');
 const alioss = require('../utils/alioss');
 const config = require('../../config/common');
+const randomString = require('../utils/randomString');
 const globalConfig = config[process.env.NODE_ENV || 'development'];
+const mongoose = require ('mongoose');
+const ImageModel = mongoose.model('Image');
 
 class UploadController {
    // 图片上传到阿里云oss中间件
@@ -13,8 +17,8 @@ class UploadController {
         message: '上传失败!'
       });
     }
-
-    const isexit = await fs.existsSync(files.files.path);
+    const filePath = files.files.path;
+    const isexit = await fs.existsSync(filePath);
     if (!isexit) {
       return ctx.success({
         code: 400,
@@ -22,12 +26,12 @@ class UploadController {
       });
     }
 
-    let filekey = files.files.name;
+    let filekey = Date.now() + randomString(6) + path.extname(filePath);
     if (globalConfig.alioss.folder) {
       filekey = globalConfig.alioss.folder + filekey;
     }
 
-    const result = await alioss(filekey, files.files.path);
+    const result = await alioss(filekey, filePath);
     if (!result || !result.url) {
       return ctx.success({
         code: 400,
@@ -43,7 +47,17 @@ class UploadController {
       });
     }
 
-    return ctx.success({ message: '上传成功!', data: { url } });
+    const size = files.files.size;
+    const name = files.files.name;
+    const img = await ImageModel.create({ path: url, size, name });
+
+    return ctx.success({
+      message: '上传成功!',
+      data: {
+        id: img.id,
+        path: img.path
+      }
+    });
   }
 }
 

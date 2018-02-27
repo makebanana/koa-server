@@ -1,14 +1,16 @@
 // const Auth = require('./system/auth.model');
-const Customer = require('./customer/customer.model');
-const Manager = require('./manager/manager.model');
-const Auth = require('./system/auth.model');
-const Photo = require('./photo/photo.model');
-const PhotoType = require('./photo/type.model');
+const customer = require('./customer/customer.model');
+const manager = require('./manager/manager.model');
+const auth = require('./system/auth.model');
+const photo = require('./photo/photo.model');
+const photoType = require('./photo/type.model');
+const image = require('./common/image.model');
 
 module.exports = {
-  Auth,
-  Manager,
-  Customer,
-  Photo,
-  PhotoType
+  auth,
+  manager,
+  customer,
+  photo,
+  photoType,
+  image
 };
