@@ -27,6 +27,7 @@ router
 
   // 相片相关
   .get('/server/photo', BackendPhoto.list)
+  .get('/server/photo/:id', BackendPhoto.detail)
   .post('/server/photo', BackendPhoto.add)
   .put('/server/photo/:id', BackendPhoto.update)
   .delete('/server/photo/:id', BackendPhoto.del)

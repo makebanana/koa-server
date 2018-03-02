@@ -35,9 +35,10 @@ module.exports = class PhotoController {
     .sort(sort)
     .skip((pageNo - 1) * pageSize)
     .limit(pageSize)
-    .populate('type', 'label -_id')
-    .then(list => list.map(({ name, intro, type, customerCount, pictures, createTime }) => {
+    .populate('type pictures')
+    .then(list => list.map(({ _id, name, intro, type, customerCount, pictures, createTime }) => {
       return {
+        _id,
         name,
         intro,
         customerCount,
@@ -59,7 +60,7 @@ module.exports = class PhotoController {
 
   static async detail (ctx) {
     const id = ctx.params.id;
-    const photo = await PhotoModel.findById(id).populate('pictures type');
+    const photo = await PhotoModel.findById(id).populate('pictures');
 
     if (photo) {
       ctx.success({

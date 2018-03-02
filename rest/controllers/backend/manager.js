@@ -6,7 +6,6 @@ const moment = require('moment');
 module.exports = class ManagerController {
   static async login (ctx) {
     const { mobile, password } = ctx.request.body;
-    console.log(ctx.request.body)
 
     if (!mobile) {
       return ctx.error({
