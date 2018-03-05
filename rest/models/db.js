@@ -2,7 +2,7 @@
 * @ use 数据库连接
 */
 const mongoose = require('mongoose');
-const config = require('../../config/common');
+const config = require('../../config');
 
 const dbConfig = config[process.env.NODE_ENV || 'development'];
 

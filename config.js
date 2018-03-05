@@ -13,6 +13,8 @@ module.exports = {
     mongo: {
       uri: 'mongodb://localhost:27017/test'
     },
+    jwtSecret: 'owihsiuhseg',
+    secretKey: 'owihsiuhseg',
     port: '9999',
     alioss: { // 阿里云oss sdk配置  (仅供参考)
       region: 'oss-cn-hangzhou', // 示例：'oss-cn-hangzhou'

@@ -8,7 +8,7 @@ const CustomerSchema = new Schema({
   birth: { type: Date, default: null },
   from: { type: String, enum: ['wx', 'mt', 'tg', 'qt'] },
   remark: { type: String, default: null },
-  product: [{ type: Schema.Types.ObjectId, ref: 'Photo' }],
+  product: [{ type: Schema.Types.ObjectId, ref: 'PlayRecord' }],
   createTime: { type: Date, default: Date.now }
 });
 

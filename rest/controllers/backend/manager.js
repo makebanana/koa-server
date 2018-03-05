@@ -1,7 +1,6 @@
 const tokenMaker = require('jsonwebtoken');
 const mongoose = require ('mongoose');
 const ManagerModel = mongoose.model('Manager');
-const moment = require('moment');
 
 module.exports = class ManagerController {
   static async login (ctx) {
@@ -31,7 +30,7 @@ module.exports = class ManagerController {
 
     result.token = token;
     result.ip = ctx.req.headers['x-forwarded-for'] || ctx.req.connection.remoteAddress;
-    result.lastLoginTime = moment().format('YYYY-MM-DD HH:mm:ss');
+    result.lastLoginTime = new Date();
     result.save();
 
     ctx.success({

@@ -5,7 +5,7 @@
 */
 const co = require('co');
 const OSS = require('ali-oss');
-const config = require('../../config/common');
+const config = require('../../config');
 const globalConfig = config[process.env.NODE_ENV || 'development'];
 
 module.exports = (key, path) => {
