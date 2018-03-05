@@ -6,8 +6,8 @@
 const app = require('../app');
 const debug = require('debug')('demo:server');
 const http = require('http');
-const cfile = require('../config/common');
-const config = cfile[process.env.NODE_ENV];
+const cfile = require('../config');
+const config = cfile[process.env.NODE_ENV || 'development'];
 /**
  * Get port from environment and store in Express.
  */

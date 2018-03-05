@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const alioss = require('../utils/alioss');
-const config = require('../../config/common');
+const config = require('../../config');
 const randomString = require('../utils/randomString');
 const globalConfig = config[process.env.NODE_ENV || 'development'];
 const mongoose = require ('mongoose');

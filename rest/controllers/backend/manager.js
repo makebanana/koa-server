@@ -1,6 +1,8 @@
 const tokenMaker = require('jsonwebtoken');
 const mongoose = require ('mongoose');
 const ManagerModel = mongoose.model('Manager');
+const config = require('../../../config');
+const globalConfig = config[process.env.NODE_ENV || 'development'];
 
 module.exports = class ManagerController {
   static async login (ctx) {
@@ -18,27 +20,34 @@ module.exports = class ManagerController {
       });
     }
 
-    const result = await ManagerModel.findOne({ mobile, password });
-    if (!result) {
+    const manager = await ManagerModel.findOne({ mobile, password });
+    if (!manager) {
       return ctx.success({
         code: 400,
         message: '用户名或密码错误!'
       });
     }
 
-    const token = tokenMaker.sign({msg: 'manager login token'}, ctx.header['user-agent']);
+    const token = tokenMaker.sign(
+      {
+        id: manager._id,
+        secret: manager.appSecret
+      },
+      globalConfig.jwtSecret,
+      { expiresIn: 86400000 }
+    );
 
-    result.token = token;
-    result.ip = ctx.req.headers['x-forwarded-for'] || ctx.req.connection.remoteAddress;
-    result.lastLoginTime = new Date();
-    result.save();
+    manager.token = token;
+    manager.ip = ctx.req.headers['x-forwarded-for'] || ctx.req.connection.remoteAddress;
+    manager.lastLoginTime = new Date();
+    manager.save();
 
     ctx.success({
       message: '登陆成功',
       data: {
         authorization: token,
-        id: result.id,
-        name: result.name
+        id: manager.id,
+        name: manager.name
       }
     });
   }
