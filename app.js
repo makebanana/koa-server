@@ -6,6 +6,8 @@ const bodyParser = require('koa-bodyparser')();
 const logger = require('koa-logger');
 const path = require('path');
 const koaBody = require('koa-body');
+const jwt = require('koa-jwt');
+const config = require('./config')[process.env.NODE_ENV || 'development'];
 
 require('./rest/models/db');
 
@@ -28,6 +30,8 @@ app.use(koaBody({
 
 // 使用ctx.body解析中间件
 app.use(bodyParser);
+
+app.use(jwt({ secret: config.jwtSecret }).unless({ path:[/^\/server\/login/, /^\/server\/register/] }));
 
 // app.use(async (ctx, next) => {
 //   const start = new Date();

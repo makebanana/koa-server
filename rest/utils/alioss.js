@@ -5,11 +5,10 @@
 */
 const co = require('co');
 const OSS = require('ali-oss');
-const config = require('../../config');
-const globalConfig = config[process.env.NODE_ENV || 'development'];
+const config = require('../../config')[process.env.NODE_ENV || 'development'];
 
 module.exports = (key, path) => {
-  const client = new OSS(globalConfig.alioss);
+  const client = new OSS(config.alioss);
   return new Promise((resolve, reject) => {
     co(function* () {
       const result = yield client.put(key, path);

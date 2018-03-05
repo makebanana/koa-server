@@ -1,11 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-const alioss = require('../utils/alioss');
-const config = require('../../config');
-const randomString = require('../utils/randomString');
-const globalConfig = config[process.env.NODE_ENV || 'development'];
 const mongoose = require ('mongoose');
 const ImageModel = mongoose.model('Image');
+const alioss = require('../utils/alioss');
+const randomString = require('../utils/randomString');
+const config = require('../../config')[process.env.NODE_ENV || 'development'];
 
 class UploadController {
    // 图片上传到阿里云oss中间件
@@ -27,8 +26,8 @@ class UploadController {
     }
 
     let filekey = Date.now() + randomString(6) + path.extname(filePath);
-    if (globalConfig.alioss.folder) {
-      filekey = globalConfig.alioss.folder + filekey;
+    if (config.alioss.folder) {
+      filekey = config.alioss.folder + filekey;
     }
 
     const result = await alioss(filekey, filePath);

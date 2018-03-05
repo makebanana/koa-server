@@ -3,8 +3,7 @@ const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const crypto = require('crypto');
-const config = require('../../../config');
-const globalConfig = config[process.env.NODE_ENV || 'development'];
+const config = require('../../../config')[process.env.NODE_ENV || 'development'];
 
 const ManagerSchema = new Schema({
   mobile: { type: String, required: true },
@@ -13,14 +12,13 @@ const ManagerSchema = new Schema({
   ip: { type: String, default: null },
   auth: [{ type: Schema.Types.ObjectId, ref: 'Auth' }],
   appSecret: { type: String, default: GetHmac() },
-  token: { type: String, default: null },
   lastLoginTime: { type: Date, default: null },
   createTime: { type: Date, default: Date.now }
 });
 
 
 function GetHmac(){
-  const hmac = crypto.createHmac('sha256', globalConfig.secretKey);
+  const hmac = crypto.createHmac('sha256', config.secretKey);
   hmac.update(Date.now().toString());
   return hmac.digest('hex');
 }

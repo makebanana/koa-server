@@ -1,8 +1,7 @@
 const tokenMaker = require('jsonwebtoken');
 const mongoose = require ('mongoose');
 const ManagerModel = mongoose.model('Manager');
-const config = require('../../../config');
-const globalConfig = config[process.env.NODE_ENV || 'development'];
+const config = require('../../../config')[process.env.NODE_ENV || 'development'];
 
 module.exports = class ManagerController {
   static async login (ctx) {
@@ -33,11 +32,10 @@ module.exports = class ManagerController {
         id: manager._id,
         secret: manager.appSecret
       },
-      globalConfig.jwtSecret,
+      config.jwtSecret,
       { expiresIn: 86400000 }
     );
 
-    manager.token = token;
     manager.ip = ctx.req.headers['x-forwarded-for'] || ctx.req.connection.remoteAddress;
     manager.lastLoginTime = new Date();
     manager.save();

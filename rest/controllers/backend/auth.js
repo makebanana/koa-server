@@ -4,10 +4,9 @@ const AuthModel = mongoose.model('Auth');
 
 module.exports = class AuthController {
   static async has (ctx) {
-    const token = ctx.headers.authorization;
-    const manager = await ManagerModel.findOne({ token }).populate('auth');
+    const manager = await ManagerModel.findOne({ _id: ctx.state.user.id }).populate('auth');
 
-    if (!manager || !token) {
+    if (!manager) {
       ctx.success({
         code: 400,
         message: '获取权限错误'
