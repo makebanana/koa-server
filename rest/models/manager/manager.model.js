@@ -41,10 +41,8 @@ ManagerSchema.methods.comparePassword = async function (password) {
   return isMatch;
 };
 
-ManagerSchema.statics = {
-  canManage (id, moduleId) {
-    return this.findById(id).then(manager => manager && manager.auth.includes(moduleId));
-  }
+ManagerSchema.statics.canManage = (id, moduleId) => {
+  return this.findById(id).then(manager => manager && manager.auth.includes(moduleId));
 };
 
 ManagerSchema.statics.checkToken = async function (token) {

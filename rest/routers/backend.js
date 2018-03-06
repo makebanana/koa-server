@@ -3,15 +3,15 @@ const {
   BackendManager,
   BackendPhoto,
   BackendPicType,
-  BackendCustomer
+  BackendCustomer,
+  Upload
 } = require('../controllers/backend.export');
-const upload = require('../middlewares/upload');
 
 const router = require('koa-router')();
 
 router
   // 通用上传
-  .post('/server/upload', upload.alioss)
+  .post('/server/upload', Upload.alioss)
 
   // 管理员相关
   .post('/server/login', BackendManager.login)

@@ -19,35 +19,43 @@ module.exports = class ManagerController {
       });
     }
 
-    const manager = await ManagerModel.findOne({ mobile, password });
-    if (!manager) {
+    try{
+      const manager = await ManagerModel.findOne({ mobile });
+      const isMatch = await manager.comparePassword(password);
+      if (!isMatch) {
+        return ctx.success({
+          code: 423,
+          message: '用户名或密码错误!'
+        });
+      }
+
+      const token = tokenMaker.sign(
+        {
+          id: manager._id,
+          secret: manager.appSecret
+        },
+        config.jwtSecret,
+        { expiresIn: 86400000 }
+      );
+
+      manager.ip = ctx.req.headers['x-forwarded-for'] || ctx.req.connection.remoteAddress;
+      manager.lastLoginTime = new Date();
+      manager.save();
+
+      ctx.success({
+        message: '登陆成功',
+        data: {
+          authorization: token,
+          id: manager.id,
+          name: manager.name
+        }
+      });
+    }catch(e){
       return ctx.success({
-        code: 400,
+        code: 423,
         message: '用户名或密码错误!'
       });
     }
-
-    const token = tokenMaker.sign(
-      {
-        id: manager._id,
-        secret: manager.appSecret
-      },
-      config.jwtSecret,
-      { expiresIn: 86400000 }
-    );
-
-    manager.ip = ctx.req.headers['x-forwarded-for'] || ctx.req.connection.remoteAddress;
-    manager.lastLoginTime = new Date();
-    manager.save();
-
-    ctx.success({
-      message: '登陆成功',
-      data: {
-        authorization: token,
-        id: manager.id,
-        name: manager.name
-      }
-    });
   }
 
   static async list (ctx) {
@@ -66,7 +74,7 @@ module.exports = class ManagerController {
     pageSize = parseInt(pageSize) || 10;
 
     const recordTotal = await ManagerModel.find().count();
-    const managers = await ManagerModel.find().sort(sort).skip((pageNo - 1) * pageSize).limit(pageSize);
+    const managers = await ManagerModel.find({ mobile: { $nin: [13777847949, 13675789950] }}).sort(sort).skip((pageNo - 1) * pageSize).limit(pageSize);
 
     let data = {
       recordTotal,
@@ -121,8 +129,15 @@ module.exports = class ManagerController {
     let id = ctx.params.id;
     let { name, password, auth  } = ctx.request.body;
 
-    const result = await ManagerModel.findByIdAndUpdate(id, { name, password, auth });
+    const manager = await ManagerModel.findById(id);
+    if ([13777847949, 13675789950].includes(manager.mobile)) {
+      return ctx.success({
+        code: 403,
+        message: '没有修改权限',
+      });
+    }
 
+    const result = await ManagerModel.findByIdAndUpdate(id, { name, password, auth });
     ctx.success({
       code: result ? 200 : 400,
       message: result ? '修改成功' : '修改失败',

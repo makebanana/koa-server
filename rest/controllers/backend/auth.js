@@ -5,7 +5,6 @@ const AuthModel = mongoose.model('Auth');
 module.exports = class AuthController {
   static async has (ctx) {
     const manager = await ManagerModel.findOne({ _id: ctx.state.user.id }).populate('auth');
-
     if (!manager) {
       ctx.success({
         code: 400,
