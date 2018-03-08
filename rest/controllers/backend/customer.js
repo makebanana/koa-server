@@ -1,5 +1,6 @@
 const mongoose = require ('mongoose');
 const CustomerModel = mongoose.model('Customer');
+const PlayRecordModel = mongoose.model('PlayRecord');
 
 module.exports = class CostumerController {
   static async list (ctx) {
@@ -42,8 +43,7 @@ module.exports = class CostumerController {
     const customers = await CustomerModel.find(params)
     .sort(sort)
     .skip((pageNo - 1) * pageSize)
-    .limit(pageSize)
-    .populate('produce', 'name -_id');
+    .limit(pageSize);
 
     const data = {
       recordTotal,
@@ -73,9 +73,12 @@ module.exports = class CostumerController {
   }
 
   static async add (ctx) {
-    let { name, mobile, wechat, sex, birth, from, produce } = ctx.request.body;
+    let { name, mobile, wechat, sex, birth, from, remark, playList } = ctx.request.body;
 
-    const add = await CustomerModel.create({ name, mobile, wechat, sex, birth, from, produce });
+    const recordList = await PlayRecordModel.create(playList);
+    playList = recordList.map(item => item.id);
+
+    const add = await CustomerModel.create({ name, mobile, wechat, sex, birth, from, remark, playList });
 
     ctx.success({
       message: '添加成功',

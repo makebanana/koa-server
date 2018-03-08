@@ -1,5 +1,6 @@
 // const Auth = require('./system/auth.model');
 const customer = require('./customer/customer.model');
+const playRecord = require('./customer/playRecord.model');
 const manager = require('./manager/manager.model');
 const auth = require('./system/auth.model');
 const photo = require('./photo/photo.model');
@@ -10,6 +11,7 @@ module.exports = {
   auth,
   manager,
   customer,
+  playRecord,
   photo,
   photoType,
   image

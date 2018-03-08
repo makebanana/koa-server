@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const PlayRecordSchema = new Schema({
   type: [{ type: Schema.Types.ObjectId, ref: 'PhotoType' }],
-  product: { type: Schema.Types.ObjectId, ref: 'Photo' },
+  photo: { type: Schema.Types.ObjectId, ref: 'Photo' },
   createTime: { type: Date, default: Date.now }
 });
 

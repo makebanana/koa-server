@@ -27,9 +27,6 @@ module.exports = class PhotoController {
       params.type = tid.trim();
     }
 
-    //type id
-    tid = tid.trim();
-
     const recordTotal = await PhotoModel.find(params).count();
     const photos = await PhotoModel.find(params)
     .sort(sort)
