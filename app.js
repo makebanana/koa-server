@@ -30,7 +30,7 @@ app.use(koaBody({
 
 // 使用ctx.body解析中间件
 app.use(bodyParser);
-
+app.use(require('./rest/middlewares/authError'));
 app.use(jwt({ secret: config.jwtSecret }).unless({ path:[/^\/server\/login/, /^\/server\/register/] }));
 
 // app.use(async (ctx, next) => {
