@@ -57,12 +57,40 @@ module.exports = class CostumerController {
 
   static async detail (ctx) {
     const id = ctx.params.id;
-    const customer = await CustomerModel.findById(id).populate('playList').populate('photo', 'name cover');
+    const customer = await CustomerModel.findById(id).populate({
+      path: 'playList',
+      select: 'photo createTime',
+      populate: {
+        path: 'photo',
+        select: 'name pictures',
+        populate: {
+          path: 'pictures',
+          select: 'path -_id'
+        }
+      }
+    });
+
+    const playList = customer.playList.map(({ createTime, _id, photo }) => ({
+      _id,
+      createTime,
+      name: photo.name,
+      cover: photo.pictures[0].path
+    }));
 
     if (customer) {
       ctx.success({
         data: {
-          customer
+          customer: {
+            _id: customer._id,
+            name: customer.name,
+            mobile: customer.mobile,
+            wechat: customer.wechat,
+            from: customer.from,
+            sex: customer.sex,
+            remark: customer.remark,
+            birth: customer.birth,
+            playList
+          }
         }
       });
     } else {
