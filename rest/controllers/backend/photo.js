@@ -118,10 +118,19 @@ module.exports = class PhotoController {
 
   static async del (ctx) {
     const id = ctx.params.id;
-    const del = await PhotoModel.findByIdAndRemove(id).exec();
+    const del = await PhotoModel.findById(id);
+
+    if (del.customerCount > 0) {
+      return ctx.success({
+        code: 400,
+        message: '删除失败，该相片还有关联的用户',
+      });
+    }
+
+    const result = await del.remove();
     ctx.success({
-      code: del ? 200 : 400,
-      message: del ? '删除成功' : '删除失败',
+      code: result ? 200 : 400,
+      message: result ? '删除成功' : '删除失败',
     });
   }
 };

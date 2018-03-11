@@ -1,5 +1,6 @@
 const mongoose = require ('mongoose');
 const CustomerModel = mongoose.model('Customer');
+const PhotoModel = mongoose.model('Photo');
 const PlayRecordModel = mongoose.model('PlayRecord');
 
 module.exports = class CostumerController {
@@ -56,7 +57,7 @@ module.exports = class CostumerController {
 
   static async detail (ctx) {
     const id = ctx.params.id;
-    const customer = await CustomerModel.findById(id).populate('produce');
+    const customer = await CustomerModel.findById(id).populate('playList').populate('photo', 'name cover');
 
     if (customer) {
       ctx.success({
@@ -86,26 +87,40 @@ module.exports = class CostumerController {
         id: add.id
       }
     });
+
+    const needUpdatePhotoIds = recordList.map(record => record.photo);
+    PhotoModel.updateCount(needUpdatePhotoIds);
   }
 
   static async update (ctx) {
     const id = ctx.params.id;
-    const { name, mobile, wechat, sex, birth, from, produce } = ctx.request.body;
+    const { name, mobile, wechat, sex, birth, from } = ctx.request.body;
 
 
-    const result = await CustomerModel.update({_id: id}, { name, mobile, wechat, sex, birth, from, produce});
+    const result = await CustomerModel.findByIdAndUpdate(id, { name, mobile, wechat, sex, birth, from});
     ctx.success({
-      code: result.ok ? 200 : 400,
-      message: result.ok ? '修改成功' : '修改失败',
+      code: result ? 200 : 400,
+      message: result ? '修改成功' : '修改失败',
     });
   }
 
   static async del (ctx) {
     const id = ctx.params.id;
-    const del = await CustomerModel.findByIdAndRemove(id).exec();
-    ctx.success({
-      code: del ? 200 : 400,
-      message: del ? '删除成功' : '删除失败',
-    });
+    const del = await CustomerModel.findById(id).populate('playList');
+
+    const result = await del.remove();
+    if (result) {
+      ctx.success({
+        code: 200,
+        message: '删除成功',
+      });
+      const photoList = del.playList.map(record => record.photo);
+      PhotoModel.updateCount(photoList, true);
+    } else {
+      ctx.success({
+        code: 400,
+        message: '删除失败',
+      });
+    }
   }
 };

@@ -35,7 +35,7 @@ module.exports = class ManagerController {
           secret: manager.appSecret
         },
         config.jwtSecret,
-        { expiresIn: 86400000 }
+        { expiresIn: '12h' }
       );
 
       manager.ip = ctx.req.headers['x-forwarded-for'] || ctx.req.connection.remoteAddress;
@@ -130,6 +130,14 @@ module.exports = class ManagerController {
     let { name, password, auth  } = ctx.request.body;
 
     const manager = await ManagerModel.findById(id);
+
+    if (!manager) {
+      return ctx.success({
+        code: 404,
+        message: '该管理员不存在',
+      });
+    }
+
     if ([13777847949, 13675789950].includes(manager.mobile)) {
       return ctx.success({
         code: 403,
@@ -137,7 +145,17 @@ module.exports = class ManagerController {
       });
     }
 
-    const result = await ManagerModel.findByIdAndUpdate(id, { name, password, auth });
+    const updateData = {
+      name,
+      auth
+    };
+
+    if (password) {
+      updateData.password = password;
+    }
+
+    const result = await ManagerModel.findByIdAndUpdate(id, updateData);
+
     ctx.success({
       code: result ? 200 : 400,
       message: result ? '修改成功' : '修改失败',
@@ -146,7 +164,7 @@ module.exports = class ManagerController {
 
   static async del (ctx) {
     let id = ctx.params.id;
-    const del = await ManagerModel.findByIdAndRemove(id).exec();
+    const del = await ManagerModel.findByIdAndRemove(id);
     ctx.success({
       code: del ? 200 : 400,
       message: del ? '删除成功' : '删除失败',

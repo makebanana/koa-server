@@ -4,6 +4,7 @@ const {
   BackendPhoto,
   BackendPicType,
   BackendCustomer,
+  BackendPlayRecord,
   Upload
 } = require('../controllers/backend.export');
 
@@ -43,6 +44,10 @@ router
   .get('/server/customer/:id', BackendCustomer.detail)
   .post('/server/customer', BackendCustomer.add)
   .put('/server/customer/:id', BackendCustomer.update)
-  .delete('/server/customer/:id', BackendCustomer.del);
+  .delete('/server/customer/:id', BackendCustomer.del)
+
+  // 客户拍摄记录
+  .post('/server/playRecord/:photoId', BackendPlayRecord.add)
+  .delete('/server/playRecord/:photoId/:id', BackendPlayRecord.del);
 
 module.exports = router;
