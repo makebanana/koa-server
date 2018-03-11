@@ -1,6 +1,6 @@
 const mongoose = require ('mongoose');
-const PlayRecordModel = mongoose.model('playRecord');
-const PhotoModel = mongoose.model('photo');
+const PlayRecordModel = mongoose.model('PlayRecord');
+const PhotoModel = mongoose.model('Photo');
 const CustomerModel = mongoose.model('Customer');
 
 module.exports = class PlayRecordController {
