@@ -1,6 +1,5 @@
 const mongoose = require ('mongoose');
 const CustomerModel = mongoose.model('Customer');
-const PhotoModel = mongoose.model('Photo');
 const PlayRecordModel = mongoose.model('PlayRecord');
 
 module.exports = class CostumerController {
@@ -31,8 +30,8 @@ module.exports = class CostumerController {
     from = from.trim();
     if (from) { params.from = from; }
 
-    // 1 new top . 2 old top
-    sort = parseInt(sort) === 2 ? 'createTime' : '-createTime';
+    // '' new top . 1 old top
+    sort = parseInt(sort) === 1 ? 'createTime' : '-createTime';
 
     // pageNo
     pageNo = parseInt(pageNo) || 1;
@@ -57,40 +56,12 @@ module.exports = class CostumerController {
 
   static async detail (ctx) {
     const id = ctx.params.id;
-    const customer = await CustomerModel.findById(id).populate({
-      path: 'playList',
-      select: 'photo createTime',
-      populate: {
-        path: 'photo',
-        select: 'name pictures',
-        populate: {
-          path: 'pictures',
-          select: 'path -_id'
-        }
-      }
-    });
-
-    const playList = customer.playList.map(({ createTime, _id, photo }) => ({
-      _id,
-      createTime,
-      name: photo.name,
-      cover: photo.pictures[0].path
-    }));
+    const customer = await CustomerModel.findById(id);
 
     if (customer) {
       ctx.success({
         data: {
-          customer: {
-            _id: customer._id,
-            name: customer.name,
-            mobile: customer.mobile,
-            wechat: customer.wechat,
-            from: customer.from,
-            sex: customer.sex,
-            remark: customer.remark,
-            birth: customer.birth,
-            playList
-          }
+          customer
         }
       });
     } else {
@@ -104,10 +75,7 @@ module.exports = class CostumerController {
   static async add (ctx) {
     let { name, mobile, wechat, sex, birth, from, remark, playList } = ctx.request.body;
 
-    const recordList = await PlayRecordModel.create(playList);
-    playList = recordList.map(item => item.id);
-
-    const add = await CustomerModel.create({ name, mobile, wechat, sex, birth, from, remark, playList });
+    const add = await CustomerModel.create({ name, mobile, wechat, sex, birth, from, remark });
 
     ctx.success({
       message: '添加成功',
@@ -116,8 +84,11 @@ module.exports = class CostumerController {
       }
     });
 
-    const needUpdatePhotoIds = recordList.map(record => record.photo);
-    PhotoModel.updateCount(needUpdatePhotoIds);
+    // 创建记录
+    playList.forEach(record => {
+      record.customer = add.id;
+    });
+    PlayRecordModel.create(playList);
   }
 
   static async update (ctx) {
@@ -134,7 +105,7 @@ module.exports = class CostumerController {
 
   static async del (ctx) {
     const id = ctx.params.id;
-    const del = await CustomerModel.findById(id).populate('playList');
+    const del = await CustomerModel.findById(id);
 
     const result = await del.remove();
     if (result) {
@@ -142,8 +113,11 @@ module.exports = class CostumerController {
         code: 200,
         message: '删除成功',
       });
-      const photoList = del.playList.map(record => record.photo);
-      PhotoModel.updateCount(photoList, true);
+      PlayRecordModel.find({ customer: result.id }).then(records => {
+        records.forEach(record => {
+          record.remove();
+        });
+      });
     } else {
       ctx.success({
         code: 400,

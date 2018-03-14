@@ -10,17 +10,14 @@ const PhotoSchema = new Schema({
   createTime: { type: Date, default: Date.now }
 });
 
-PhotoSchema.static('updateCount', function(ids, isDel) {
-  const idArr = Array.isArray(ids) ? ids : [ids];
-  this.find({ _id: { $in: idArr }}).then(photos => {
-    photos.forEach(photo => {
-      const customerCount = photo.customerCount;
+PhotoSchema.static('updateCount', function(id, isDel) {
+  this.findById(id).then(photo => {
+    const customerCount = photo.customerCount;
 
-      if (isDel && customerCount <= 0) { return; }
+    if (isDel && customerCount <= 0) { return; }
 
-      photo.customerCount = customerCount + ( isDel ? -1 : 1 );
-      photo.save();
-    });
+    photo.customerCount = customerCount + ( isDel ? -1 : 1 );
+    photo.save();
   });
 });
 

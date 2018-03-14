@@ -48,6 +48,6 @@ router
 
   // 客户拍摄记录
   .post('/server/playRecord/:photoId', BackendPlayRecord.add)
-  .delete('/server/playRecord/:photoId/:id', BackendPlayRecord.del);
+  .delete('/server/playRecord/:id', BackendPlayRecord.del);
 
 module.exports = router;
