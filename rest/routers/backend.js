@@ -47,7 +47,8 @@ router
   .delete('/server/customer/:id', BackendCustomer.del)
 
   // 客户拍摄记录
-  .post('/server/playRecord/:photoId', BackendPlayRecord.add)
+  .get('/server/:customerId/playRecord', BackendPlayRecord.list)
+  .post('/server/:customerId/playRecord', BackendPlayRecord.add)
   .delete('/server/playRecord/:id', BackendPlayRecord.del);
 
 module.exports = router;

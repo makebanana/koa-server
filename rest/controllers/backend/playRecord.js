@@ -1,14 +1,39 @@
 const mongoose = require ('mongoose');
 const PlayRecordModel = mongoose.model('PlayRecord');
-const PhotoModel = mongoose.model('Photo');
-const CustomerModel = mongoose.model('Customer');
 
 module.exports = class PlayRecordController {
+  static async list (ctx) {
+    const customerId = ctx.params.customerId;
+
+    const result = await PlayRecordModel.find({ customer: customerId }, 'photo createTime').populate({
+      path: 'photo',
+      select: 'name pictures',
+      populate: {
+        path: 'pictures',
+        select: 'path -_id'
+      }
+    });
+
+    const playList = result.map(({ createTime, _id, photo }) => ({
+      _id,
+      createTime,
+      name: photo.name,
+      cover: photo.pictures[0].path
+    }));
+
+    ctx.success({
+      message: '添加成功',
+      data: {
+        playList
+      }
+    });
+  }
+
   static async add (ctx) {
     const { type, photo, createTime } = ctx.request.body;
-    const phtotoId = ctx.params.photoId;
+    const customerId = ctx.params.customerId;
 
-    const record = await PlayRecordModel.create({ type, photo, createTime });
+    const record = await PlayRecordModel.create({ type, photo, createTime, customer: customerId });
 
     ctx.success({
       message: '添加成功',
@@ -16,19 +41,12 @@ module.exports = class PlayRecordController {
         id: record.id
       }
     });
-
-    PhotoModel.updateCount(photo);
-    CustomerModel.findById(phtotoId).then(photo => {
-      photo.playList.push(record.id);
-      photo.save();
-    });
   }
 
   static async del (ctx) {
-    const phtotoId = ctx.params.photoId;
     const id = ctx.params.id;
 
-    const del = await PlayRecordModel.findOne({ id });
+    const del = await PlayRecordModel.findById(id);
 
     if (!del) {
       ctx.success({
@@ -43,12 +61,6 @@ module.exports = class PlayRecordController {
       ctx.success({
         code: 200,
         message: '删除成功',
-      });
-
-      PhotoModel.updateCount(del.photo, true);
-      CustomerModel.findById(phtotoId).then(photo => {
-        photo.playList = photo.playList.filter(record => record !== id);
-        photo.save();
       });
     } else {
       ctx.success({
