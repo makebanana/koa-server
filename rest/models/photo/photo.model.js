@@ -11,14 +11,7 @@ const PhotoSchema = new Schema({
 });
 
 PhotoSchema.static('updateCount', function(id, isDel) {
-  this.findById(id).then(photo => {
-    const customerCount = photo.customerCount;
-
-    if (isDel && customerCount <= 0) { return; }
-
-    photo.customerCount = customerCount + ( isDel ? -1 : 1 );
-    photo.save();
-  });
+  this.findByIdAndUpdate(id, { $inc: { customerCount: isDel ? -1 : 1 } });
 });
 
 module.exports = mongoose.model('Photo', PhotoSchema);
