@@ -4,6 +4,7 @@ const BackendPhoto = require('./backend/photo');
 const BackendPicType = require('./backend/picType');
 const BackendCustomer = require('./backend/customer');
 const BackendPlayRecord = require('./backend/playRecord');
+const BackendAnalysis = require('./backend/analysis');
 const Upload = require('./upload');
 
 module.exports = {
@@ -13,5 +14,6 @@ module.exports = {
   BackendPicType,
   BackendCustomer,
   BackendPlayRecord,
+  BackendAnalysis,
   Upload
 };

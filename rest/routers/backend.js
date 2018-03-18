@@ -5,6 +5,7 @@ const {
   BackendPicType,
   BackendCustomer,
   BackendPlayRecord,
+  BackendAnalysis,
   Upload
 } = require('../controllers/backend.export');
 
@@ -49,6 +50,10 @@ router
   // 客户拍摄记录
   .get('/server/:customerId/playRecord', BackendPlayRecord.list)
   .post('/server/:customerId/playRecord', BackendPlayRecord.add)
-  .delete('/server/playRecord/:id', BackendPlayRecord.del);
+  .delete('/server/playRecord/:id', BackendPlayRecord.del)
+
+  // 分析相关
+  .get('/server/analysis/customer', BackendAnalysis.customer)
+  .get('/server/analysis/photo', BackendAnalysis.photo);
 
 module.exports = router;
