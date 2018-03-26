@@ -2,24 +2,27 @@ const Koa = require('koa');
 const app = new Koa();
 const convert = require('koa-convert');
 const onerror = require('koa-onerror');
-const bodyParser = require('koa-bodyparser')();
 const logger = require('koa-logger');
-const path = require('path');
+const serve = require('koa-static');
 const koaBody = require('koa-body');
+const bodyParser = require('koa-bodyparser')();
 const jwt = require('koa-jwt');
+const path = require('path');
 const config = require('./config')[process.env.NODE_ENV || 'development'];
 
+// db regist
 require('./rest/models/db');
 
-// const json = require('koa-json')
+// logger
+app.use(convert(logger()));
 
-const backendRouter = require('./rest/routers/backend');
+// static page
+app.use(serve(path.join(__dirname, '..', 'dist')));
 
-app.use(convert(logger()))
-   .use(require('koa-static')(path.resolve(__dirname) + '/public'));
-
+// error
 onerror(app);
 
+// post body
 app.use(koaBody({
   formLimit: 10485760,  // 最大1M
   formidable:{
@@ -30,19 +33,21 @@ app.use(koaBody({
 
 // 使用ctx.body解析中间件
 app.use(bodyParser);
+
+// auth error catch
 app.use(require('./rest/middlewares/authError'));
+
+// auth check and unless
 app.use(jwt({ secret: config.jwtSecret }).unless({ path:[/^\/server\/login/, /^\/server\/register/] }));
 
-// app.use(async (ctx, next) => {
-//   const start = new Date();
-//   await next();
-//   const ms = new Date() - start;
-//   console.log(`${ctx.method} ${ctx.url} - ${ms}ms`);
-// });
-
-// router
+// response quiky api
 app.use(require('./rest/middlewares/response'));
+
+// catch uncatch error
 app.use(require('./rest/middlewares/filter'));
+
+// rest api router
+const backendRouter = require('./rest/routers/backend');
 app.use(backendRouter.routes()).use(backendRouter.allowedMethods());
 
 // response

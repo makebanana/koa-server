@@ -15,7 +15,7 @@ module.exports = async (ctx, next) => {
     ctx.body = { code: status || 400, message, data, error };
   };
   ctx.success = ({ code = 200, data, message }) => {
-    ctx.body = { code, message, data };
+    ctx.body = { code, message, data, success: true };
   };
   await next();
 };

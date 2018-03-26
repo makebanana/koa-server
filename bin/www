@@ -6,7 +6,11 @@
 const app = require('../app');
 const debug = require('debug')('demo:server');
 const http = require('http');
+const https = require('https');
+// const enforceHttps = require('koa-sslify');
 const cfile = require('../config');
+const fs = require('fs');
+const path = require('path');
 const config = cfile[process.env.NODE_ENV || 'development'];
 /**
  * Get port from environment and store in Express.
@@ -19,7 +23,20 @@ const port = normalizePort(config.port);
  * Create HTTP server.
  */
 
-const server = http.createServer(app.callback());
+// Force HTTPS on all page
+// if (process.env.NODE_ENV === 'production') {
+//   app.use(enforceHttps());
+// }
+const server = function (){
+  if (process.env.NODE_ENV === 'production') {
+    return https.createServer({
+        key: fs.readFileSync(path.join(__dirname, '../../ssl/214534601590949.key')),  //ssl文件路径
+        cert: fs.readFileSync(path.join(__dirname, '../../ssl/214534601590949.pem'))  //ssl文件路径
+    }, app.callback());
+  }
+  return http.createServer(app.callback());
+}();
+
 
 /**
  * Listen on provided port, on all network interfaces.
