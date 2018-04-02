@@ -193,10 +193,7 @@ module.exports = class ManagerController {
 
   static async canIuse (uid, id) {
     const manager = await ManagerModel.findOne({ _id: uid }).select('auth -_id').populate('auth');
-    console.log('manager', manager);
     const hasAuth = manager.auth.map(auth => auth.id);
-    console.log(hasAuth);
-    console.log(hasAuth.includes(id), id);
     return hasAuth.includes(id);
   }
 };

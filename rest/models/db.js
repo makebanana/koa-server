@@ -3,6 +3,7 @@
 */
 const mongoose = require('mongoose');
 const config = require('../../config');
+const initMongoData = require('./init');
 
 const dbConfig = config[process.env.NODE_ENV || 'development'];
 
@@ -13,6 +14,7 @@ require('./index');
 // 连接成功
 mongoose.connection.on('connected', function() {
   console.log('Mongoose connection open to ' + dbConfig.mongo.uri);
+  initMongoData();
 });
 
 // 连接失败
