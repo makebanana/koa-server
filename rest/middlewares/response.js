@@ -10,12 +10,21 @@
 */
 
 module.exports = async (ctx, next) => {
+  ctx.success = ({ code = 200, data, message }) => {
+    ctx.body = { code, message, data, success: true };
+  };
+
   ctx.error = ({ data, message, status, error }) => {
     ctx.status = status || 400;
     ctx.body = { code: status || 400, message, data, error };
   };
-  ctx.success = ({ code = 200, data, message }) => {
-    ctx.body = { code, message, data, success: true };
+
+  ctx.cant = () => {
+    ctx.body = {
+      code: 403,
+      message: '没有相关权限'
+    };
   };
+
   await next();
 };

@@ -5,6 +5,10 @@ const PhotoModel = mongoose.model('Photo');
 
 module.exports = class AnalysisController {
   static async customer (ctx) {
+    if (!await ctx.canIuse(50002)) {
+      return ctx.cant();
+    }
+
     const now = Date.now();
     const tempFrom = {
       'wx': 0,
@@ -41,6 +45,10 @@ module.exports = class AnalysisController {
   }
 
   static async photo (ctx) {
+    if (!await ctx.canIuse(50001)) {
+      return ctx.cant();
+    }
+
     const tempType = {};
     const tempCount = {};
     await PhotoModel

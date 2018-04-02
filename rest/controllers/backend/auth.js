@@ -27,8 +27,8 @@ module.exports = class AuthController {
   }
 
   static async list (ctx) {
-    const auth = await AuthModel.find()
-    .then(auths => auths.filter(auth => auth.id !== 60000));
+    const auth = await AuthModel.find();
+    // .then(auths => auths.filter(auth => auth.id !== 60000));
 
     ctx.success({
       data: {

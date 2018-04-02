@@ -3,6 +3,10 @@ const PhotoModel = mongoose.model('Photo');
 
 module.exports = class PhotoController {
   static async list (ctx) {
+    if (!await ctx.canIuse(20001)) {
+      return ctx.cant();
+    }
+
     let {
       pageNo = 1,
       pageSize = 10,
@@ -56,6 +60,10 @@ module.exports = class PhotoController {
   }
 
   static async detail (ctx) {
+    if (!await ctx.canIuse(20001)) {
+      return ctx.cant();
+    }
+
     const id = ctx.params.id;
     const photo = await PhotoModel.findById(id).populate('pictures');
 
@@ -74,6 +82,10 @@ module.exports = class PhotoController {
   }
 
   static async add (ctx) {
+    if (!await ctx.canIuse(20002)) {
+      return ctx.cant();
+    }
+
     const { name, intro, pictures, type } = ctx.request.body;
 
     const hasSame = await PhotoModel.find({ name });
@@ -96,6 +108,10 @@ module.exports = class PhotoController {
   }
 
   static async update (ctx) {
+    if (!await ctx.canIuse(20002)) {
+      return ctx.cant();
+    }
+
     const id = ctx.params.id;
     const { name, intro, pictures, type } = ctx.request.body;
 
@@ -117,6 +133,10 @@ module.exports = class PhotoController {
   }
 
   static async del (ctx) {
+    if (!await ctx.canIuse(20002)) {
+      return ctx.cant();
+    }
+
     const id = ctx.params.id;
     const del = await PhotoModel.findById(id);
 

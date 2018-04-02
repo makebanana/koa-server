@@ -4,6 +4,10 @@ const PlayRecordModel = mongoose.model('PlayRecord');
 
 module.exports = class CostumerController {
   static async list (ctx) {
+    if (!await ctx.canIuse(10001)) {
+      return ctx.cant();
+    }
+
     let {
       pageNo = 1,
       pageSize = 10,
@@ -55,6 +59,10 @@ module.exports = class CostumerController {
   }
 
   static async detail (ctx) {
+    if (!await ctx.canIuse(10001)) {
+      return ctx.cant();
+    }
+
     const id = ctx.params.id;
     const customer = await CustomerModel.findById(id);
 
@@ -73,7 +81,20 @@ module.exports = class CostumerController {
   }
 
   static async add (ctx) {
-    let { name, mobile, wechat, sex, birth, from, remark, playList } = ctx.request.body;
+    if (!await ctx.canIuse(10002)) {
+      return ctx.cant();
+    }
+
+    let {
+      name,
+      mobile,
+      wechat,
+      sex,
+      birth,
+      from,
+      remark,
+      playList
+    } = ctx.request.body;
 
     const add = await CustomerModel.create({ name, mobile, wechat, sex, birth, from, remark });
 
@@ -92,6 +113,10 @@ module.exports = class CostumerController {
   }
 
   static async update (ctx) {
+    if (!await ctx.canIuse(10002)) {
+      return ctx.cant();
+    }
+
     const id = ctx.params.id;
     const { name, mobile, wechat, sex, birth, from } = ctx.request.body;
 
@@ -104,6 +129,10 @@ module.exports = class CostumerController {
   }
 
   static async del (ctx) {
+    if (!await ctx.canIuse(10002)) {
+      return ctx.cant();
+    }
+
     const id = ctx.params.id;
     const del = await CustomerModel.findById(id);
 

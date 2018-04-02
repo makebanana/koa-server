@@ -34,10 +34,10 @@ app.use(koaBody({
 // 使用ctx.body解析中间件
 app.use(bodyParser);
 
-// auth error catch
-app.use(require('./rest/middlewares/authError'));
+// token error catch
+app.use(require('./rest/middlewares/tokenError'));
 
-// auth check and unless
+// token check and unless
 app.use(jwt({ secret: config.jwtSecret }).unless({ path:[/^\/server\/login/, /^\/server\/register/] }));
 
 // response quiky api
@@ -45,6 +45,9 @@ app.use(require('./rest/middlewares/response'));
 
 // catch uncatch error
 app.use(require('./rest/middlewares/filter'));
+
+// auth check
+app.use(require('./rest/middlewares/apiAuthMap'));
 
 // rest api router
 const backendRouter = require('./rest/routers/backend');

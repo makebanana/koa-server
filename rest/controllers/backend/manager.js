@@ -59,6 +59,10 @@ module.exports = class ManagerController {
   }
 
   static async list (ctx) {
+    if (!await ctx.canIuse(60000)) {
+      return ctx.cant();
+    }
+
     let {
       pageNo = 1,
       pageSize = 10,
@@ -74,7 +78,7 @@ module.exports = class ManagerController {
     pageSize = parseInt(pageSize) || 10;
 
     const recordTotal = await ManagerModel.find().count();
-    const managers = await ManagerModel.find({ mobile: { $nin: [13777847949, 13675789950] }}).sort(sort).skip((pageNo - 1) * pageSize).limit(pageSize);
+    const managers = await ManagerModel.find({ mobile: { $nin: [13777847949] }}).sort(sort).skip((pageNo - 1) * pageSize).limit(pageSize);
 
     let data = {
       recordTotal,
@@ -86,6 +90,10 @@ module.exports = class ManagerController {
   }
 
   static async detail (ctx) {
+    if (!await ctx.canIuse(60000)) {
+      return ctx.cant();
+    }
+
     let id = ctx.params.id;
     const manager = await ManagerModel.findById(id).populate('auth');
 
@@ -104,6 +112,10 @@ module.exports = class ManagerController {
   }
 
   static async add (ctx) {
+    if (!await ctx.canIuse(60000)) {
+      return ctx.cant();
+    }
+
     let { mobile, password, name, auth } = ctx.request.body;
 
     const hasSame = await ManagerModel.find({ mobile });
@@ -126,6 +138,10 @@ module.exports = class ManagerController {
   }
 
   static async update (ctx) {
+    if (!await ctx.canIuse(60000)) {
+      return ctx.cant();
+    }
+
     let id = ctx.params.id;
     let { name, password, auth  } = ctx.request.body;
 
@@ -138,7 +154,7 @@ module.exports = class ManagerController {
       });
     }
 
-    if ([13777847949, 13675789950].includes(manager.mobile)) {
+    if ([13777847949].includes(manager.mobile)) {
       return ctx.success({
         code: 403,
         message: '没有修改权限',
@@ -163,11 +179,24 @@ module.exports = class ManagerController {
   }
 
   static async del (ctx) {
+    if (!await ctx.canIuse(60000)) {
+      return ctx.cant();
+    }
+
     let id = ctx.params.id;
     const del = await ManagerModel.findByIdAndRemove(id);
     ctx.success({
       code: del ? 200 : 400,
       message: del ? '删除成功' : '删除失败',
     });
+  }
+
+  static async canIuse (uid, id) {
+    const manager = await ManagerModel.findOne({ _id: uid }).select('auth -_id').populate('auth');
+    console.log('manager', manager);
+    const hasAuth = manager.auth.map(auth => auth.id);
+    console.log(hasAuth);
+    console.log(hasAuth.includes(id), id);
+    return hasAuth.includes(id);
   }
 };
