@@ -26,7 +26,7 @@ const port = normalizePort(config.port);
 // Force HTTPS on all page
 if (process.env.NODE_ENV === 'production') {
   app.use(enforceHttps());
-  http.createServer(app.callback());
+  http.createServer(app.callback()).listen(80);
 }
 const server = function (){
   if (process.env.NODE_ENV === 'production') {
